@@ -18,6 +18,10 @@ var BranchSchema = new Schema({
     phone:          { type: String, default: '' },
     status:         {type: String, enums:['active', 'inactive'], default:'active'},
     weredas:        [{ type: Schema.Types.ObjectId, ref: 'Wereda'}],
+    geolocation:    {
+      longitude: { type: Number, default: 0.0 },
+      latitude:  { type: Number, default: 0.0 }
+    }
     date_created:   { type: Date },
     last_modified:  { type: Date }
 });
@@ -58,6 +62,7 @@ BranchSchema.statics.attributes = {
   phone: 1,
   status: 1,
   weredas: 1,
+  geolocation: 1,
   date_created: 1,
   last_modified: 1
 };
