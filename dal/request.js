@@ -1,44 +1,48 @@
 'use strict';
-// Access Layer for Geoconfig Data.
+// Access Layer for Request Data.
 
 /**
  * Load Module Dependencies.
  */
-const debug   = require('debug')('api:dal-geoconfig');
+const debug   = require('debug')('api:dal-request');
 const moment  = require('moment');
 const _       = require('lodash');
 const co      = require('co');
 
+const Request    = require('../models/request');
+const Branch    = require('../models/branch');
 const Geoconfig    = require('../models/geoconfig');
-const User    = require('../models/user');
 const mongoUpdate   = require('../lib/mongo-update');
 
-var returnFields = Geoconfig.attributes;
+var returnFields = Request.attributes;
 var population = [{
-  path: 'user',
-  select: User.attributes
+  path: 'branch',
+  select: Branch.attributes
+},{
+  path: 'config',
+  select: Geoconfig.attributes
 }];
 
 /**
- * create a new geoconfig.
+ * create a new request.
  *
- * @desc  creates a new geoconfig and saves them
+ * @desc  creates a new request and saves them
  *        in the database
  *
- * @param {Object}  geoconfigData  Data for the geoconfig to create
+ * @param {Object}  requestData  Data for the request to create
  *
  * @return {Promise}
  */
-exports.create = function create(geoconfigData) {
-  debug('creating a new geoconfig');
+exports.create = function create(requestData) {
+  debug('creating a new request');
 
   return co(function* () {
 
-    let unsavedGeoconfig = new Geoconfig(geoconfigData);
-    let newGeoconfig = yield unsavedGeoconfig.save();
-    let geoconfig = yield exports.get({ _id: newGeoconfig._id });
+    let unsavedRequest = new Request(requestData);
+    let newRequest = yield unsavedRequest.save();
+    let request = yield exports.get({ _id: newRequest._id });
 
-    return geoconfig;
+    return request;
 
 
   });
@@ -46,37 +50,37 @@ exports.create = function create(geoconfigData) {
 };
 
 /**
- * delete a geoconfig
+ * delete a request
  *
- * @desc  delete data of the geoconfig with the given
+ * @desc  delete data of the request with the given
  *        id
  *
  * @param {Object}  query   Query Object
  *
  * @return {Promise}
  */
-exports.delete = function deleteGeoconfig(query) {
-  debug('deleting geoconfig: ', query);
+exports.delete = function deleteRequest(query) {
+  debug('deleting request: ', query);
 
   return co(function* () {
-    let geoconfig = yield exports.get(query);
+    let request = yield exports.get(query);
     let _empty = {};
 
-    if(!geoconfig) {
+    if(!request) {
       return _empty;
     } else {
-      yield geoconfig.remove();
+      yield request.remove();
 
-      return geoconfig;
+      return request;
     }
 
   });
 };
 
 /**
- * update a geoconfig
+ * update a request
  *
- * @desc  update data of the geoconfig with the given
+ * @desc  update data of the request with the given
  *        id
  *
  * @param {Object} query Query object
@@ -85,7 +89,7 @@ exports.delete = function deleteGeoconfig(query) {
  * @return {Promise}
  */
 exports.update = function update(query, updates) {
-  debug('updating geoconfig: ', query);
+  debug('updating request: ', query);
 
   let now = moment().toISOString();
   let opts = {
@@ -95,42 +99,42 @@ exports.update = function update(query, updates) {
 
   updates = mongoUpdate(updates);
 
-  return Geoconfig.findOneAndUpdate(query, updates, opts)
+  return Request.findOneAndUpdate(query, updates, opts)
       .populate(population)
       .exec();
 };
 
 /**
- * get a geoconfig.
+ * get a request.
  *
- * @desc get a geoconfig with the given id from db
+ * @desc get a request with the given id from db
  *
  * @param {Object} query Query Object
  *
  * @return {Promise}
  */
-exports.get = function get(query, geoconfig) {
-  debug('getting geoconfig ', query);
+exports.get = function get(query, request) {
+  debug('getting request ', query);
 
-  return Geoconfig.findOne(query, returnFields)
+  return Request.findOne(query, returnFields)
     .populate(population)
     .exec();
 
 };
 
 /**
- * get a collection of geoconfigs
+ * get a collection of requests
  *
- * @desc get a collection of geoconfigs from db
+ * @desc get a collection of requests from db
  *
  * @param {Object} query Query Object
  *
  * @return {Promise}
  */
 exports.getCollection = function getCollection(query, qs) {
-  debug('fetching a collection of geoconfigs');
+  debug('fetching a collection of requests');
 
-  return Geoconfig.find(query, returnFields)
+  return Request.find(query, returnFields)
     .populate(population)
     .exec();
 
@@ -138,16 +142,16 @@ exports.getCollection = function getCollection(query, qs) {
 };
 
 /**
- * get a collection of geoconfigs using pagination
+ * get a collection of requests using pagination
  *
- * @desc get a collection of geoconfigs from db
+ * @desc get a collection of requests from db
  *
  * @param {Object} query Query Object
  *
  * @return {Promise}
  */
 exports.getCollectionByPagination = function getCollection(query, qs) {
-  debug('fetching a collection of geoconfigs');
+  debug('fetching a collection of requests');
 
   let opts = {
     select:  returnFields,
@@ -159,7 +163,7 @@ exports.getCollectionByPagination = function getCollection(query, qs) {
 
 
   return new Promise((resolve, reject) => {
-    Geoconfig.paginate(query, opts, function (err, docs) {
+    Request.paginate(query, opts, function (err, docs) {
       if(err) {
         return reject(err);
       }

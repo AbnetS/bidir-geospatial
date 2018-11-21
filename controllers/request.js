@@ -6,7 +6,7 @@ const crypto  = require('crypto');
 const path    = require('path');
 const url     = require('url');
 
-const debug      = require('debug')('api:geoconfig-controller');
+const debug      = require('debug')('api:request-controller');
 const moment     = require('moment');
 const jsonStream = require('streaming-json-stringify');
 const _          = require('lodash');
@@ -21,58 +21,55 @@ const checkPermissions   = require('../lib/permissions');
 const Account            = require('../models/account');
 
 const BranchDal          = require('../dal/branch');
-const GeoconfigDal       = require('../dal/geoconfig');
+const RequestDal       = require('../dal/request');
 const LogDal             = require('../dal/log');
 const AccountDal         = require('../dal/account');
 
 let hasPermission = checkPermissions.isPermitted('USER');
 
 /**
- * Create a geoconfig.
+ * Create a request.
  *
- * @desc create a geoconfig using basic Authentication or Social Media
+ * @desc create a request using basic Authentication or Social Media
  *
  * @param {Function} next Middleware dispatcher
  *
  */
-exports.create = function* createGeoconfig(next) {
-  debug('create geoconfig');
+exports.create = function* createRequest(next) {
+  debug('create request');
 
   let isPermitted = yield hasPermission(this.state._user, 'CREATE');
   /*if(!isPermitted) {
     return this.throw(new CustomError({
-      type: 'GEOCONFIG_CREATE_ERROR',
+      type: 'REQUEST_CREATE_ERROR',
       message: "You Don't have enough permissions to complete this action"
     }));
   }*/
 
   let body = this.request.body;
 
-  this.checkBody('user')
-      .notEmpty('Geoconfig User Reference is Empty!!');
-  this.checkBody('name')
-      .notEmpty('Geoconfig Name is Empty!!');
+  this.checkBody('branch')
+      .notEmpty('Request Branch Reference is Empty!!');
+  this.checkBody('config')
+      .notEmpty('Request Config Reference is Empty!!');
 
   if(this.errors) {
     return this.throw(new CustomError({
-      type: 'GEOCONFIG_CREATION_ERROR',
+      type: 'REQUEST_CREATION_ERROR',
       message: JSON.stringify(this.errors)
     }));
   }
 
   try {
-    let geoconfig = yield GeoconfigDal.get({ user: body.user });
-    if(geoconfig) {
-      throw new Error('Geoconfig For User already exists!!');
-    }
-    // Create Geoconfig Type
-    geoconfig = yield GeoconfigDal.create(body);
 
-    this.body = geoconfig;
+    // Create Request Type
+    let request = yield RequestDal.create(body);
+
+    this.body = request;
 
   } catch(ex) {
     this.throw(new CustomError({
-      type: 'GEOCONFIG_CREATION_ERROR',
+      type: 'REQUEST_CREATION_ERROR',
       message: ex.message
     }));
   }
@@ -81,19 +78,19 @@ exports.create = function* createGeoconfig(next) {
 
 
 /**
- * Get a single geoconfig.
+ * Get a single request.
  *
- * @desc Fetch a geoconfig with the given id from the database.
+ * @desc Fetch a request with the given id from the database.
  *
  * @param {Function} next Middleware dispatcher
  */
-exports.fetchOne = function* fetchOneGeoconfig(next) {
-  debug(`fetch geoconfig: ${this.params.id}`);
+exports.fetchOne = function* fetchOneRequest(next) {
+  debug(`fetch request: ${this.params.id}`);
 
   let isPermitted = yield hasPermission(this.state._user, 'VIEW');
   /*if(!isPermitted) {
     return this.throw(new CustomError({
-      type: 'GEOCONFIG_VIEW_ERROR',
+      type: 'REQUEST_VIEW_ERROR',
       message: "You Don't have enough permissions to complete this action"
     }));
   }*/
@@ -103,22 +100,22 @@ exports.fetchOne = function* fetchOneGeoconfig(next) {
   };
 
   try {
-    let geoconfig = yield GeoconfigDal.get(query);
-    if(!geoconfig || !geoconfig._id) {
-      throw new Error('Geoconfig does not Exist!!');
+    let request = yield RequestDal.get(query);
+    if(!request || !request._id) {
+      throw new Error('Request does not Exist!!');
     }
 
     yield LogDal.track({
-      event: 'view_geoconfig',
-      geoconfig: this.state._user._id ,
-      message: `View geoconfig - ${geoconfig.phone}`
+      event: 'view_request',
+      request: this.state._user._id ,
+      message: `View request - ${request.phone}`
     });
 
-    this.body = geoconfig;
+    this.body = request;
 
   } catch(ex) {
     return this.throw(new CustomError({
-      type: 'GEOCONFIG_VIEW_ERROR',
+      type: 'REQUEST_VIEW_ERROR',
       message: ex.message
     }));
   }
@@ -126,20 +123,20 @@ exports.fetchOne = function* fetchOneGeoconfig(next) {
 };
 
 /**
- * Update a single geoconfig.
+ * Update a single request.
  *
- * @desc Fetch a geoconfig with the given id from the database
+ * @desc Fetch a request with the given id from the database
  *       and update their data
  *
  * @param {Function} next Middleware dispatcher
  */
-exports.update = function* updateGeoconfig(next) {
-  debug(`updating geoconfig: ${this.params.id}`);
+exports.update = function* updateRequest(next) {
+  debug(`updating request: ${this.params.id}`);
 
   let isPermitted = yield hasPermission(this.state._user, 'UPDATE');
   /*if(!isPermitted) {
     return this.throw(new CustomError({
-      type: 'UPDATE_GEOCONFIG_ERROR',
+      type: 'UPDATE_REQUEST_ERROR',
       message: "You Don't have enough permissions to complete this action"
     }));
   }*/
@@ -150,23 +147,23 @@ exports.update = function* updateGeoconfig(next) {
   let body = this.request.body;
 
   try {
-    let geoconfig = yield GeoconfigDal.update(query, body);
-    if(!geoconfig || !geoconfig._id) {
-      throw new Error('Geoconfig does not Exist!!');
+    let request = yield RequestDal.update(query, body);
+    if(!request || !request._id) {
+      throw new Error('Request does not Exist!!');
     }
 
     yield LogDal.track({
-      event: 'geoconfig_update',
-      geoconfig: this.state._user._id ,
-      message: `Update Info for ${geoconfig.name}`,
+      event: 'request_update',
+      request: this.state._user._id ,
+      message: `Update Info for ${request.name}`,
       diff: body
     });
 
-    this.body = geoconfig;
+    this.body = request;
 
   } catch(ex) {
     return this.throw(new CustomError({
-      type: 'UPDATE_GEOCONFIG_ERROR',
+      type: 'UPDATE_REQUEST_ERROR',
       message: ex.message
     }));
 
@@ -175,19 +172,19 @@ exports.update = function* updateGeoconfig(next) {
 };
 
 /**
- * Get a collection of geoconfigs by Pagination
+ * Get a collection of requests by Pagination
  *
- * @desc Fetch a collection of geoconfigs
+ * @desc Fetch a collection of requests
  *
  * @param {Function} next Middleware dispatcher
  */
-exports.fetchAllByPagination = function* fetchAllGeoconfigs(next) {
-  debug('get a collection of geoconfigs by pagination');
+exports.fetchAllByPagination = function* fetchAllRequests(next) {
+  debug('get a collection of requests by pagination');
 
   let isPermitted = yield hasPermission(this.state._user, 'VIEW');
   /*if(!isPermitted) {
     return this.throw(new CustomError({
-      type: 'VIEW_GEOCONFIGS_COLLECTION_ERROR',
+      type: 'VIEW_REQUESTS_COLLECTION_ERROR',
       message: "You Don't have enough permissions to complete this action"
     }));
   }*/
@@ -231,27 +228,27 @@ exports.fetchAllByPagination = function* fetchAllGeoconfigs(next) {
     }
 
 
-    let geoconfigs = yield GeoconfigDal.getCollectionByPagination(query, opts);
+    let requests = yield RequestDal.getCollectionByPagination(query, opts);
 
-    this.body = geoconfigs;
+    this.body = requests;
 
   } catch(ex) {
     return this.throw(new CustomError({
-      type: 'VIEW_GEOCONFIGS_COLLECTION_ERROR',
+      type: 'VIEW_REQUESTS_COLLECTION_ERROR',
       message: ex.message
     }));
   }
 };
 
 /**
- * Search  geoconfigs 
+ * Search  requests 
  *
- * @desc Fetch a collection searched geoconfigs
+ * @desc Fetch a collection searched requests
  *
  * @param {Function} next Middleware dispatcher
  */
-exports.search = function* searchGeoconfiges(next) {
-  debug('search geoconfigs');
+exports.search = function* searchRequestes(next) {
+  debug('search requests');
 
   try {
     let query = this.request.query;
@@ -260,51 +257,51 @@ exports.search = function* searchGeoconfiges(next) {
       throw new Error('Search Query is missing');
     }
 
-    let geoconfigs = yield GeoconfigDal.getCollection(query);
+    let requests = yield RequestDal.getCollection(query);
 
-    this.body = geoconfigs;
+    this.body = requests;
 
   } catch(ex) {
     return this.throw(new CustomError({
-      type: 'GEOCONFIG_SEARCH_ERROR',
+      type: 'REQUEST_SEARCH_ERROR',
       message: ex.message
     }));
   }
 };
 
 /**
- * Delete a single geoconfig.
+ * Delete a single request.
  *
- * @desc Fetch a geoconfig with the given id from the database
+ * @desc Fetch a request with the given id from the database
  *       and delete their data
  *
  * @param {Function} next Middleware dispatcher
  */
-exports.remove = function* removeGeoconfig(next) {
-  debug(`remove geoconfig: ${this.params.id}`);
+exports.remove = function* removeRequest(next) {
+  debug(`remove request: ${this.params.id}`);
 
   let query = {
     _id: this.params.id
   };
 
   try {
-    // Delete Geoconfig
-    let geoconfig = yield GeoconfigDal.delete(query);
-    if(!geoconfig || !geoconfig._id) {
-      throw new Error('Geoconfig does not Exist!!');
+    // Delete Request
+    let request = yield RequestDal.delete(query);
+    if(!request || !request._id) {
+      throw new Error('Request does not Exist!!');
     }
 
     yield LogDal.track({
-      event: 'geoconfig_delete',
+      event: 'request_delete',
       mfi: this.state._user._id ,
-      message: `Delete Info for ${geoconfig.name}`
+      message: `Delete Info for ${request.name}`
     });
 
-    this.body = geoconfig;
+    this.body = request;
 
   } catch(ex) {
     return this.throw(new CustomError({
-      type: 'REMOVE_GEOCONFIG_ERROR',
+      type: 'REMOVE_REQUEST_ERROR',
       message: ex.message
     }));
 

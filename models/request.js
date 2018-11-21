@@ -1,4 +1,4 @@
-// Geoconfig Model Definiton.
+// Request Model Definiton.
 
 /**
  * Load Module Dependencies.
@@ -9,17 +9,17 @@ var paginator = require('mongoose-paginate');
 
 var Schema = mongoose.Schema;
 
-var GeoconfigSchema = new Schema({
-    user:           { type: Schema.Types.ObjectId, ref: "User" },
-    name:           { type: String, default: "NULL"},
-    from_date:      { type: Date, default: null },
-    to_date:        { type: Date, default: null },
+var RequestSchema = new Schema({
+    branch:           { type: Schema.Types.ObjectId, ref: "Branch" },
+    config:           { type: Schema.Types.ObjectId, ref: "Geoconfig" },
+    indicator:           { type: String, default: "NULL"},
+    UID:      { type: String, default: "NULL" },
     date_created:   { type: Date },
     last_modified:  { type: Date }
 });
 
 // add mongoose-troop middleware to support pagination
-GeoconfigSchema.plugin(paginator);
+RequestSchema.plugin(paginator);
 
 /**
  * Pre save middleware.
@@ -28,7 +28,7 @@ GeoconfigSchema.plugin(paginator);
  *          attributes prior to save.
  *        - Hash tokens password.
  */
-GeoconfigSchema.pre('save', function preSaveMiddleware(next) {
+RequestSchema.pre('save', function preSaveMiddleware(next) {
   var instance = this;
 
   // set date modifications
@@ -42,18 +42,18 @@ GeoconfigSchema.pre('save', function preSaveMiddleware(next) {
 });
 
 /**
- * Filter Geoconfig Attributes to expose
+ * Filter Request Attributes to expose
  */
-GeoconfigSchema.statics.attributes = {
+RequestSchema.statics.attributes = {
   _id: 1,
-  user: 1,
-  name: 1,
-  from_date: 1,
-  to_date: 1,
+  branch: 1,
+  config: 1,
+  UID: 1,
+  indicator: 1,
   date_created: 1,
   last_modified: 1
 };
 
 
-// Expose Geoconfig model
-module.exports = mongoose.model('Geoconfig', GeoconfigSchema);
+// Expose Request model
+module.exports = mongoose.model('Request', RequestSchema);

@@ -9,6 +9,7 @@ const debug  = require('debug')('api:app-router');
 const rootRouter        = require('./root');
 const weredaRouter      = require('./wereda');
 const geoconfigRouter   = require('./geoconfig');
+const requestRouter   = require('./request');
 
 var appRouter = new Router();
 
@@ -26,6 +27,8 @@ composeRoute('', rootRouter);
 composeRoute('geospatial/weredas', weredaRouter);
 //Add geoconfig Router
 composeRoute('geospatial/configs', geoconfigRouter);
+//Add request Router
+composeRoute('geospatial/requests', requestRouter);
 
 function composeRoute(endpoint, router){
   appRouter.use(`/${endpoint}`, router.routes(), router.allowedMethods());
