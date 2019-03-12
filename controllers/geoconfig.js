@@ -24,6 +24,8 @@ const BranchDal          = require('../dal/branch');
 const GeoconfigDal       = require('../dal/geoconfig');
 const LogDal             = require('../dal/log');
 const AccountDal         = require('../dal/account');
+const RequestDal         = require('../dal/request');
+
 
 let hasPermission = checkPermissions.isPermitted('USER');
 
@@ -171,6 +173,55 @@ exports.update = function* updateGeoconfig(next) {
     }));
 
   }
+
+};
+
+exports.reset = function* resetGeoconfig(next){
+  //1. Update Geoconfig record
+  //2. Clear all requests.
+
+  debug(`updating geoconfig: ${this.params.id}`);
+
+  let isPermitted = yield hasPermission(this.state._user, 'UPDATE');
+  /*if(!isPermitted) {
+    return this.throw(new CustomError({
+      type: 'UPDATE_GEOCONFIG_ERROR',
+      message: "You Don't have enough permissions to complete this action"
+    }));
+  }*/
+
+  let query = {
+    _id: this.params.id
+  };
+  let body = this.request.body;
+
+  try {
+    let geoconfig = yield GeoconfigDal.update(query, body);
+    if(!geoconfig || !geoconfig._id) {
+      throw new Error('Geoconfig does not Exist!!');
+    }
+
+    
+    let requests = RequestDal.deleteAll();    
+    
+
+    yield LogDal.track({
+      event: 'geoconfig_reset',
+      geoconfig: this.state._user._id ,
+      message: `Reset Info for ${geoconfig.name}`,
+      diff: body
+    });
+
+    this.body = geoconfig;
+
+  } catch(ex) {
+    return this.throw(new CustomError({
+      type: 'UPDATE_GEOCONFIG_ERROR',
+      message: ex.message
+    }));
+
+  }
+
 
 };
 

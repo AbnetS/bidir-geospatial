@@ -77,6 +77,13 @@ exports.delete = function deleteRequest(query) {
   });
 };
 
+exports.deleteAll = function deleteAllRequests (){
+  debug ('deleting all requests...');
+
+  return Request.remove({})
+        .exec();
+}
+
 /**
  * update a request
  *

@@ -163,6 +163,9 @@ router.get('/:id', acl(['*']), geoconfigController.fetchOne);
 router.put('/:id', acl(['*']), geoconfigController.update);
 
 
+router.put('/:id/reset', acl(['*']), geoconfigController.reset);
+
+
 /**
  * @api {get} /geospatial/configs/search?QueryTerm=<QueryValue> Search geoconfigs 
  * @apiVersion 1.0.0
