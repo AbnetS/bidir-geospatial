@@ -60,19 +60,29 @@ exports.create = function* createRequest(next) {
     }));
   }
 
-  try {
-
-    // Create Request Type
-    let request = yield RequestDal.create(body);
+  //Check if a request with the same UID exists...
+  let request = yield RequestDal.get({UID: body.UID});
+  if (request){
+    debug ("The request exists, so need to add, returning the same request as a response");
 
     this.body = request;
-
-  } catch(ex) {
-    this.throw(new CustomError({
-      type: 'REQUEST_CREATION_ERROR',
-      message: ex.message
-    }));
   }
+  else{
+
+    try {
+
+      // Create Request Type
+      let request = yield RequestDal.create(body);
+
+      this.body = request;
+
+    } catch(ex) {
+      this.throw(new CustomError({
+        type: 'REQUEST_CREATION_ERROR',
+        message: ex.message
+      }));
+    }
+}
 
 };
 
