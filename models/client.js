@@ -13,8 +13,8 @@ var Schema = mongoose.Schema;
 
 // New Client Schema model
 var ClientSchema = new Schema({
-  branch:         { type: Schema.Types.ObjectId, ref: 'Branch', default: null },
-  created_by:     { type: Schema.Types.ObjectId, ref: 'Account' },
+  branch:         { type: Schema.Types.ObjectId, ref: 'Branch'},
+  created_by:     { type: Schema.Types.ObjectId, ref: 'User' },
   picture:        { type: String, default: '' },
   gender:         { type: String, default: 'SELECT' },
   first_name:     { type: String, default: '' },
@@ -33,10 +33,22 @@ var ClientSchema = new Schema({
     grandfather_name: { type: String, default: '' },
     national_id_no: { type: String, default: '' }
   },
+  geolocation:    {
+    latitude:   { type: Number, default: 0 },
+    longitude:  { type: Number, default: 0 },
+    longtude:  { type: Number, default: 0 },
+    S2_Id:      { type: String, default: "NULL"},
+    status:     { type: String, default: "NO ATTEMPT" }
+  },
   email:          { type: String, default: '' },
   phone:          { type: String, default: '' },
-  household_members_count: { type: Number, default: 0 },
+  household_members_count: { type: String, default: "0" },
+  status:         { type: String, default: 'new' },
+  for_group:      { type: Boolean, default: 'false'},
   date_created:   { type: Date },
+  cbs_status:         { type: String, default: "NO ATTEMPT" },
+  cbs_status_message: { type: String, default: "None"},
+  loan_cycle_number:  { type: Number, default: 1 },
   last_modified:  { type: Date }
 });
 
@@ -62,6 +74,12 @@ ClientSchema.statics.attributes = {
   email:          1,
   phone:          1,
   household_members_count: 1,
+  geolocation: 1,
+  status: 1,
+  for_group: 1,
+  cbs_status: 1,
+  cbs_status_message: 1,
+  loan_cycle_number: 1,
   date_created:   1,
   last_modified:  1,
   _id: 1

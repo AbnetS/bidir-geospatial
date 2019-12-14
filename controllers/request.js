@@ -63,7 +63,7 @@ exports.create = function* createRequest(next) {
   //Check if a request with the same UID exists...
   let request = yield RequestDal.get({UID: body.UID});
   if (request){
-    debug ("The request exists, so need to add, returning the same request as a response");
+    debug ("The request exists, so no need to add, returning the same request as a response");
 
     this.body = request;
   }
