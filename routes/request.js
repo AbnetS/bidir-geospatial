@@ -17,42 +17,44 @@ var router  = Router();
  * @apiName Createrequest
  * @apiGroup Request
  *
- * @apiDescription Create new request
+ * @apiDescription Create new request. Records a new request object to store 
+ *                 a request made to geo spatial API
  *
- * @apiParam {String} user Request User Reference
- * @apiParam {String} name Request name
  * @apiParam {String} branch Request User Branch
- * @apiParam {String} indicator Request indicator
- * @apiParam {String} from_date Request Start Date
- * @apiParam {String} to_date Request End Date
+ * @apiParam {String} config Config Id
+ * @apiParam {String} indicator Request indicator/VI or PRECIP/
+ * @apiParam {String} UID Unique identifier of the request, sent from the Geospatial API
+ 
  *
  * @apiParamExample Request Example:
  *  {
- *    name: "Request",
- *    user : "556e1174a8952c9521286a60",
- *    branch : "556e1174a8952c9521286a60",
- *    indicator: "indicator",
- *    from_date: '2018-11-15T09:51:19.281Z',
- *    to_date: '2018-11-30T09:51:19.281Z'
+        "config": "5c5b3bce39e95000017c54b7",
+        "branch" : "5b926c849fb7f20001f1494c",
+        "indicator": "VI",
+        "UID":"00000031"
  *  }
  *
  * @apiSuccess {String} _id request id
- * @apiSuccess {String} user Request User Reference
- * @apiSuccess {String} name Request name
  * @apiSuccess {String} branch Request User Branch
+ * @apiSuccess {String} config User's config
  * @apiSuccess {String} indicator Request indicator
- * @apiSuccess {String} from_date Request Start Date
- * @apiSuccess {String} to_date Request End Date
+ * @apiSuccess {String} UID Unique Identifier 
  *
  * @apiSuccessExample Response Example:
- *  {
- *    _id : "556e1174a8952c9521286a60",
- *    name: "Request",
- *    user : { _id: "556e1174a8952c9521286a60", ... },
- *    branch : { _id: "556e1174a8952c9521286a60", ... },
- *    indicator: "indicator",
- *    from_date: '2018-11-15T09:51:19.281Z',
- *    to_date: '2018-11-30T09:51:19.281Z'
+ *  { 
+        "_id": "5c64097039e95000017c54cc",
+        "last_modified": "2019-02-13T12:11:28.391Z",
+        "date_created": "2019-02-13T12:11:28.391Z",
+        "config": {
+            "_id": "5c5b3bce39e95000017c54b7",
+            ...
+        },
+        "branch": {
+            "_id": "5b926c849fb7f20001f1494c",
+            ...
+        },
+        "UID": "00000031",
+        "indicator": "VI" *  
  *  }
  *
  */
@@ -70,33 +72,32 @@ router.post('/create', acl(['*']), requestController.create);
  * and `per_page=<RESULTS_PER_PAGE>`.
  *
  * @apiSuccess {String} _id request id
- * @apiSuccess {String} user Request User Reference
- * @apiSuccess {String} name Request name
  * @apiSuccess {String} branch Request User Branch
+ * @apiSuccess {String} config User's config
  * @apiSuccess {String} indicator Request indicator
- * @apiSuccess {String} from_date Request Start Date
- * @apiSuccess {String} to_date Request End Date
+ * @apiSuccess {String} UID Unique Identifier 
  *
  * @apiSuccessExample Response Example:
  *  {
- *    "total_pages": 1,
- *    "total_docs_count": 0,
- *    "docs": [{
-*    _id : "556e1174a8952c9521286a60",
- *    name: "Request",
- *    user : { _id: "556e1174a8952c9521286a60", ... },
- *    branch : { _id: "556e1174a8952c9521286a60", ... },
- *    indicator: "indicator",
- *    from_date: '2018-11-15T09:51:19.281Z',
- *    to_date: '2018-11-30T09:51:19.281Z'
- *    }]
+        "total_pages": 2,
+        "total_docs_count": 12,
+        "current_page": 1,
+        "docs": [
+            {
+                "_id": "5c64097039e95000017c54cc",
+                ...
+            },
+            {
+                ...
+            }...
+        ]
  *  }
  */
 router.get('/paginate', acl(['*']), requestController.fetchAllByPagination);
 
 
 /**
- * @api {get} /geospatial/requests/:id Get request request
+ * @api {get} /geospatial/requests/:id Get request
  * @apiVersion 1.0.0
  * @apiName Get
  * @apiGroup Request
@@ -104,60 +105,69 @@ router.get('/paginate', acl(['*']), requestController.fetchAllByPagination);
  * @apiDescription Get a user request with the given id
  *
  * @apiSuccess {String} _id request id
- * @apiSuccess {String} user Request User Reference
- * @apiSuccess {String} name Request name
  * @apiSuccess {String} branch Request User Branch
+ * @apiSuccess {String} config User's config
  * @apiSuccess {String} indicator Request indicator
- * @apiSuccess {String} from_date Request Start Date
- * @apiSuccess {String} to_date Request End Date
+ * @apiSuccess {String} UID Unique Identifier 
  *
+
  * @apiSuccessExample Response Example:
- *  {
- *    _id : "556e1174a8952c9521286a60",
- *    name: "Request",
- *    user : { _id: "556e1174a8952c9521286a60", ... },
- *    branch : { _id: "556e1174a8952c9521286a60", ... },
- *    indicator: "indicator",
- *    from_date: '2018-11-15T09:51:19.281Z',
- *    to_date: '2018-11-30T09:51:19.281Z'
+ *  { 
+        "_id": "5c64097039e95000017c54cc",
+        "last_modified": "2019-02-13T12:11:28.391Z",
+        "date_created": "2019-02-13T12:11:28.391Z",
+        "config": {
+            "_id": "5c5b3bce39e95000017c54b7",
+            ...
+        },
+        "branch": {
+            "_id": "5b926c849fb7f20001f1494c",
+            ...
+        },
+        "UID": "00000031",
+        "indicator": "VI" *  
  *  }
- *
  */
 router.get('/:id', acl(['*']), requestController.fetchOne);
 
 
 /**
- * @api {put} /geospatial/requests/:id Update request request
+ * @api {put} /geospatial/requests/:id Update request
  * @apiVersion 1.0.0
  * @apiName Update
  * @apiGroup Request 
  *
- * @apiDescription Update a request request with the given id
+ * @apiDescription Update a request with the given id
  *
  * @apiParam {Object} Data Update data
  *
  * @apiParamExample Request example:
  * {
- *    name: "request name"
+ *    UID: "00000032"
  * }
  *
  * @apiSuccess {String} _id request id
- * @apiSuccess {String} user Request User Reference
- * @apiSuccess {String} name Request name
  * @apiSuccess {String} branch Request User Branch
+ * @apiSuccess {String} config User's config
  * @apiSuccess {String} indicator Request indicator
- * @apiSuccess {String} from_date Request Start Date
- * @apiSuccess {String} to_date Request End Date
+ * @apiSuccess {String} UID Unique Identifier 
  *
+
  * @apiSuccessExample Response Example:
- *  {
- *    _id : "556e1174a8952c9521286a60",
- *    name: "Request",
- *    user : { _id: "556e1174a8952c9521286a60", ... },
- *    branch : { _id: "556e1174a8952c9521286a60", ... },
- *    indicator: "indicator",
- *    from_date: '2018-11-15T09:51:19.281Z',
- *    to_date: '2018-11-30T09:51:19.281Z'
+ *  { 
+        "_id": "5c64097039e95000017c54cc",
+        "last_modified": "2019-02-13T12:11:28.391Z",
+        "date_created": "2019-02-13T12:11:28.391Z",
+        "config": {
+            "_id": "5c5b3bce39e95000017c54b7",
+            ...
+        },
+        "branch": {
+            "_id": "5b926c849fb7f20001f1494c",
+            ...
+        },
+        "UID": "00000032",
+        "indicator": "VI" *  
  *  }
  */
 router.put('/:id', acl(['*']), requestController.update);
@@ -169,26 +179,32 @@ router.put('/:id', acl(['*']), requestController.update);
  * @apiName Search
  * @apiGroup Request
  *
- * @apiDescription Search Requestes. 
+ * @apiDescription Search Requests. 
+ * 
+ * @apiExample Request Example
+ * api.test.bidir.gebeya.co.geospatial/requests/search?config=5c5b3bce39e95000017c54b7&branch=5b926c849fb7f20001f1494c
  *
- * @apiSuccess {String} _id request id
- * @apiSuccess {String} user Request User Reference
- * @apiSuccess {String} name Request name
+* @apiSuccess {String} _id request id
  * @apiSuccess {String} branch Request User Branch
+ * @apiSuccess {String} config User's config
  * @apiSuccess {String} indicator Request indicator
- * @apiSuccess {String} from_date Request Start Date
- * @apiSuccess {String} to_date Request End Date
+ * @apiSuccess {String} UID Unique Identifier 
  *
- * @apiSuccessExample Response Example:
- *   [{
-*    _id : "556e1174a8952c9521286a60",
- *    name: "Request",
- *    user : { _id: "556e1174a8952c9521286a60", ... },
- *    branch : { _id: "556e1174a8952c9521286a60", ... },
- *    indicator: "indicator",
- *    from_date: '2018-11-15T09:51:19.281Z',
- *    to_date: '2018-11-30T09:51:19.281Z'
- *    }]
+ * @apiSuccessExample Response Example: 
+ * 
+ * [
+        {
+            "_id": "5c5b3e5739e95000017c54bb",
+            ...
+        },
+        {
+            "_id": "5c5b3e5c39e95000017c54bd",
+            ...
+        }...
+    ]
+ * 
+ *   
+ * 
  */
 router.get('/search', acl(['*']), requestController.search);
 
@@ -202,22 +218,27 @@ router.get('/search', acl(['*']), requestController.search);
  *
  *
  * @apiSuccess {String} _id request id
- * @apiSuccess {String} user Request User Reference
- * @apiSuccess {String} name Request name
  * @apiSuccess {String} branch Request User Branch
+ * @apiSuccess {String} config User's config
  * @apiSuccess {String} indicator Request indicator
- * @apiSuccess {String} from_date Request Start Date
- * @apiSuccess {String} to_date Request End Date
+ * @apiSuccess {String} UID Unique Identifier 
  *
+
  * @apiSuccessExample Response Example:
- *  {
- *    _id : "556e1174a8952c9521286a60",
- *    name: "Request",
- *    user : { _id: "556e1174a8952c9521286a60", ... },
- *    branch : { _id: "556e1174a8952c9521286a60", ... },
- *    indicator: "indicator",
- *    from_date: '2018-11-15T09:51:19.281Z',
- *    to_date: '2018-11-30T09:51:19.281Z'
+ *  { 
+        "_id": "5c64097039e95000017c54cc",
+        "last_modified": "2019-02-13T12:11:28.391Z",
+        "date_created": "2019-02-13T12:11:28.391Z",
+        "config": {
+            "_id": "5c5b3bce39e95000017c54b7",
+            ...
+        },
+        "branch": {
+            "_id": "5b926c849fb7f20001f1494c",
+            ...
+        },
+        "UID": "00000032",
+        "indicator": "VI" *  
  *  }
  */
 router.delete('/:id', acl(['*']), requestController.remove);

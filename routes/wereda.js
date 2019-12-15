@@ -14,18 +14,18 @@ var router  = Router();
 /**
  * @api {post} /geospatial/weredas/create Create new wereda
  * @apiVersion 1.0.0
- * @apiName Createwereda
+ * @apiName CreateWereda
  * @apiGroup Wereda
  *
- * @apiDescription Create new wereda
+ * @apiDescription Create a new Wereda. A Wereda is a distinct region.
  *
  * @apiParam {String} w_name Wereda Name
  * @apiParam {String} w_code Wereda Code
  *
  * @apiParamExample Request Example:
  *  {
- *    w_name: "Wereda",
- *    w_code: "Werc",
+ *    w_name: "Haro Maya",
+ *    w_code: "41006",
  *  }
  *
  * @apiSuccess {String} _id wereda id
@@ -33,10 +33,13 @@ var router  = Router();
  * @apiSuccess {String} w_code Wereda Code
  *
  * @apiSuccessExample Response Example:
- *  {
- *    _id : "556e1174a8952c9521286a60",
- *    w_name: "Wereda",
- *    w_code: "Werc",
+ *  { 
+        "_id": "5c5b3df639e95000017c54b8",
+        "last_modified": "2019-02-06T20:05:10.035Z",
+        "date_created": "2019-02-06T20:05:10.035Z",
+        "w_code": "41006",
+        "w_name": "Haro Maya"
+        
  *  }
  *
  */
@@ -59,35 +62,40 @@ router.post('/create', acl(['*']), weredaController.create);
  *
  * @apiSuccessExample Response Example:
  *  {
- *    "total_pages": 1,
- *    "total_docs_count": 0,
- *    "docs": [{
-  *    _id : "556e1174a8952c9521286a60",
- *    w_name: "Wereda",
- *    w_code: "Werc",
- *    }]
+        "total_pages": 1,
+        "total_docs_count": 1,
+        "current_page": 1,
+        "docs": [
+            {
+                "_id": "5c5b3df639e95000017c54b8",
+                ...
+            }...
+        ]
  *  }
  */
 router.get('/paginate', acl(['*']), weredaController.fetchAllByPagination);
 
 
 /**
- * @api {get} /geospatial/weredas/:id Get wereda wereda
+ * @api {get} /geospatial/weredas/:id Get Wereda
  * @apiVersion 1.0.0
  * @apiName Get
  * @apiGroup Wereda
  *
- * @apiDescription Get a user wereda with the given id
+ * @apiDescription Get a Wereda with the given id
  *
- * @apiSuccess {String} _id wereda id
+  * @apiSuccess {String} _id wereda id
  * @apiSuccess {String} w_name Wereda Name
  * @apiSuccess {String} w_code Wereda Code
  *
  * @apiSuccessExample Response Example:
- *  {
- *    _id : "556e1174a8952c9521286a60",
- *    w_name: "Wereda",
- *    w_code: "Werc",
+ *  { 
+        "_id": "5c5b3df639e95000017c54b8",
+        "last_modified": "2019-02-06T20:05:10.035Z",
+        "date_created": "2019-02-06T20:05:10.035Z",
+        "w_code": "41006",
+        "w_name": "Haro Maya"
+        
  *  }
  *
  */
@@ -95,29 +103,32 @@ router.get('/:id', acl(['*']), weredaController.fetchOne);
 
 
 /**
- * @api {put} /geospatial/weredas/:id Update wereda wereda
+ * @api {put} /geospatial/weredas/:id Update wereda
  * @apiVersion 1.0.0
  * @apiName Update
  * @apiGroup Wereda 
  *
- * @apiDescription Update a wereda wereda with the given id
+ * @apiDescription Update a wereda with the given id
  *
  * @apiParam {Object} Data Update data
  *
  * @apiParamExample Request example:
  * {
- *    w_code: "wereda code"
+ *    w_code: "41007"
  * }
  *
  * @apiSuccess {String} _id wereda id
  * @apiSuccess {String} w_name Wereda Name
  * @apiSuccess {String} w_code Wereda Code
  *
- * @apiSuccessExample Response Example:
- *  {
- *    _id : "556e1174a8952c9521286a60",
- *    w_name: "Wereda",
- *    w_code: "Wereda code",
+* @apiSuccessExample Response Example:
+ *  { 
+        "_id": "5c5b3df639e95000017c54b8",
+        "last_modified": "2019-02-06T20:05:10.035Z",
+        "date_created": "2019-02-06T20:05:10.035Z",
+        "w_code": "41007",
+        "w_name": "Haro Maya"
+        
  *  }
  */
 router.put('/:id', acl(['*']), weredaController.update);
@@ -129,18 +140,22 @@ router.put('/:id', acl(['*']), weredaController.update);
  * @apiName Search
  * @apiGroup Wereda
  *
- * @apiDescription Search Weredaes. 
+ * @apiDescription Search Weredas by Wereda code and/or name. 
  *
  * @apiSuccess {String} _id wereda id
  * @apiSuccess {String} w_name Wereda Name
  * @apiSuccess {String} w_code Wereda Code
  *
  * @apiSuccessExample Response Example:
- *   [{
- *    _id : "556e1174a8952c9521286a60",
- *    w_name: "Wereda",
- *    w_code: "Werc",
- *    }]
+    [
+        {
+            "_id": "5c5b3df639e95000017c54b8",
+            "last_modified": "2019-02-06T20:05:10.035Z",
+            "date_created": "2019-02-06T20:05:10.035Z",
+            "w_code": "41006",
+            "w_name": "Haro Maya"
+        }
+    ]
  */
 router.get('/search', acl(['*']), weredaController.search);
 
@@ -158,11 +173,13 @@ router.get('/search', acl(['*']), weredaController.search);
  * @apiSuccess {String} w_code Wereda Code
  *
  * @apiSuccessExample Response Example:
- *  {
- *    _id : "556e1174a8952c9521286a60",
- *    w_name: "Wereda",
- *    w_code: "Werc",
- *  }
+    {
+            "_id": "5c5b3df639e95000017c54b8",
+            "last_modified": "2019-02-06T20:05:10.035Z",
+            "date_created": "2019-02-06T20:05:10.035Z",
+            "w_code": "41006",
+            "w_name": "Haro Maya"
+    }
  */
 router.delete('/:id', acl(['*']), weredaController.remove);
 
